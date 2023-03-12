@@ -84,6 +84,7 @@ class PersonaldetailSerializer(serializers.ModelSerializer):
     def validat(self, attrs):
         # piobj = PersonalDetails.objects.get(user_id=data['user_id'])
         # if piobj:
+        #new comment
         pass
 
 

@@ -17,11 +17,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = attrs.get("email", "")
 
         if email == "":
-            raise serializers.ValidationError("El correo electrónico está vacío")
+            raise serializers.ValidationError("Please enter a valid email")
 
         try:
             User.objects.get(email=email.strip().lower())
-            raise serializers.ValidationError("el Email ya existe")
+            raise serializers.ValidationError("Email is already registered with us")
         except User.DoesNotExist:
             return attrs
 
@@ -56,18 +56,29 @@ class LoginSerializer(serializers.ModelSerializer):
         try:
             obj = User.objects.get(email=email)
         except Exception:
-            raise AuthenticationFailed("Cuenta no encontrada")
+            raise AuthenticationFailed("Account does not exists")
         user = auth.authenticate(email=email, password=password)
         if type(user) is None:
-            raise AuthenticationFailed("Credenciales no válidas")
+            raise AuthenticationFailed("Invalid credentials")
         if not user:
-            raise AuthenticationFailed("Credenciales no válidas")
+            raise AuthenticationFailed("Invalid credentials ")
         return {
             "email": user.email,
             "user_id": user.user_id,
             "access_token": user.access_tokens,
             "refresh_token": user.refresh_tokens,
         }
+
+class CustomoptSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=55, trim_whitespace=False)
+
+    class Meta:
+        model= PersonalDetails
+        fields = [ "email"]
+
+class VerifyOTPSerializer(serializers.Serializer):
+    otp = serializers.CharField(max_length=6, required=True,)
+
 
 
 class PersonaldetailSerializer(serializers.ModelSerializer):

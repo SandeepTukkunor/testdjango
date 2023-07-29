@@ -7,7 +7,12 @@ from django.db import models
 
 # Create your models here.
 from rest_framework_simplejwt.tokens import RefreshToken
+class BaseClass(models.Model):
+    created_at = models.DateTimeField(("created  at"), auto_now_add=True, db_index=True)
+    lastmodified_at = models.DateTimeField(("latsmodified_at"), auto_now=True, db_index=True)
 
+    class Meta:
+        abstract = True
 
 class UserManager(BaseUserManager):
     def create_user(self, email, user_id=None, password=None, promo_code=None):
@@ -47,6 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    email_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -62,7 +68,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         return str(refresh)
 
 
-class PersonalDetails(models.Model):
+class CustomOtp(BaseClass):
+    id = models.UUIDField(primary_key=True, db_index= True, unique=True, default=uuid.uuid4)
+    email = models.EmailField(max_length=255, unique=False, blank=False)
+    token = models.CharField(max_length=255, null=True, blank=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    counter = models.IntegerField(default=0, blank=False)
+    isVerified = models.BooleanField(blank=False, default=False)
+
+
+
+class PersonalDetails(BaseClass):
     pd_id= models.UUIDField(primary_key=True, db_index=True, unique=True, default=uuid.uuid4)
     first_name = models.CharField(max_length=256, null=True, blank=True)
     last_name = models.CharField(max_length=256, null=True, blank=True)
